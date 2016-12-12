@@ -2,6 +2,7 @@
 
 const Command = require('cmnd').Command;
 const path = require('path');
+const spawn = require('child_process').spawn;
 
 const parser = require('../parser.js');
 
@@ -34,6 +35,14 @@ class HTTPCommand extends Command {
     } catch (e) {
       throw new Error('Invalid package.json in this directory');
       return true;
+    }
+
+    if (pkg.stdlib.http && pkg.stdlib.http.prerun) {
+      let spawnArgs = pkg.stdlib.http.prerun.split(' ');
+      spawnArgs[2] = 'node_modules/.bin/' + spawnArgs[2];
+      spawn('node_modules/.bin/' + spawnArgs[0], spawnArgs.slice(1), {
+        stdio: 'inherit'
+      });
     }
 
     if (!offline) {

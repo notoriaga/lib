@@ -49,7 +49,7 @@ module.exports = {
             res.writeHead(400, {'Content-Type': 'text/plain'});
             res.end(`Error: ${err.message}`);
           } else {
-            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.writeHead(200, {'Content-Type': 'text/html'});
             if (result instanceof Buffer || typeof result !== 'object') {
               res.end(result);
             } else {

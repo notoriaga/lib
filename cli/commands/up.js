@@ -9,6 +9,7 @@ const async = require('async');
 const tar = require('tar-stream');
 const zlib = require('zlib');
 const path = require('path');
+const execSync = require('child_process').execSync;
 
 function readFiles(base, properties, dir, data) {
 
@@ -116,6 +117,12 @@ class UpCommand extends Command {
 
     if (!pkg.stdlib.name) {
       return callback(new Error('No stdlib name set in "package.json"'));
+    }
+
+    if (pkg.stdlib.up && pkg.stdlib.up.prerun) {
+      execSync(pkg.stdlib.up.prerun, {
+        stdio: 'inherit'
+      });
     }
 
     let resource = new APIResource(host, port);
