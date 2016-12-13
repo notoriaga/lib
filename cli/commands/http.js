@@ -57,7 +57,7 @@ class HTTPCommand extends Command {
       process.env.PATH = npmPath + ':' + process.env.PATH;
 
       let http = pkg.stdlib.scripts.http;
-      let cmds = duringhttp instanceof Array ? http : [http];
+      let cmds = http instanceof Array ? http : [http];
       for (let i = 0; i < cmds.length; i++) {
         let cmd = cmds[i].split(' ');
         if (!cmd.length) {
