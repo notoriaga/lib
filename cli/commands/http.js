@@ -51,13 +51,13 @@ class HTTPCommand extends Command {
     } else {
       parser.createServer(pkg, port, offline);
     }
-    if (pkg.stdlib.scripts && pkg.stdlib.scripts.duringhttp) {
+    if (pkg.stdlib.scripts && pkg.stdlib.scripts.http) {
       let npmPathCommand = spawnSync('npm', ['bin']);
       let npmPath = npmPathCommand.stdout.toString().trim();
       process.env.PATH = npmPath + ':' + process.env.PATH;
 
-      let duringhttp = pkg.stdlib.scripts.duringhttp;
-      let cmds = duringhttp instanceof Array ? duringhttp : [duringhttp];
+      let http = pkg.stdlib.scripts.http;
+      let cmds = duringhttp instanceof Array ? http : [http];
       for (let i = 0; i < cmds.length; i++) {
         let cmd = cmds[i].split(' ');
         if (!cmd.length) {
