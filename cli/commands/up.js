@@ -119,12 +119,6 @@ class UpCommand extends Command {
       return callback(new Error('No stdlib name set in "package.json"'));
     }
 
-<<<<<<< Updated upstream
-    if (pkg.stdlib.up && pkg.stdlib.up.prerun) {
-      execSync(pkg.stdlib.up.prerun, {
-        stdio: 'inherit'
-      });
-=======
     if (pkg.stdlib.scripts && pkg.stdlib.scripts.preup) {
       let npmPathCommand = spawnSync('npm', ['bin']);
       let npmPath = npmPathCommand.stdout.toString().trim();
@@ -142,7 +136,6 @@ class UpCommand extends Command {
           return callback(new Error('Error running preup scripts'));
         }
       }
->>>>>>> Stashed changes
     }
 
     let resource = new APIResource(host, port);
