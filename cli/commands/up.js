@@ -119,10 +119,30 @@ class UpCommand extends Command {
       return callback(new Error('No stdlib name set in "package.json"'));
     }
 
+<<<<<<< Updated upstream
     if (pkg.stdlib.up && pkg.stdlib.up.prerun) {
       execSync(pkg.stdlib.up.prerun, {
         stdio: 'inherit'
       });
+=======
+    if (pkg.stdlib.scripts && pkg.stdlib.scripts.preup) {
+      let npmPathCommand = spawnSync('npm', ['bin']);
+      let npmPath = npmPathCommand.stdout.toString().trim();
+      process.env.PATH = npmPath + ':' + process.env.PATH;
+
+      let preup = pkg.stdlib.scripts.preup;
+      let cmds = preup instanceof Array ? preup : [preup];
+      for (let i = 0; i < cmds.length; i++) {
+        let cmd = cmds[i].split(' ');
+        if (!cmd.length) {
+          continue;
+        }
+        let command = spawnSync(cmd[0], cmd.slice(1), {stdio: [0, 1, 2]});
+        if (command.status !== 0) {
+          return callback(new Error('Error running preup scripts'));
+        }
+      }
+>>>>>>> Stashed changes
     }
 
     let resource = new APIResource(host, port);

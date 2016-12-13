@@ -3,6 +3,7 @@
 const Command = require('cmnd').Command;
 const path = require('path');
 const spawn = require('child_process').spawn;
+const spawnSync = require('child_process').spawnSync;
 
 const parser = require('../parser.js');
 
@@ -49,6 +50,24 @@ class HTTPCommand extends Command {
       parser.check(err => parser.createServer(pkg, port, !!err));
     } else {
       parser.createServer(pkg, port, offline);
+    }
+    if (pkg.stdlib.scripts && pkg.stdlib.scripts.duringhttp) {
+      let npmPathCommand = spawnSync('npm', ['bin']);
+      let npmPath = npmPathCommand.stdout.toString().trim();
+      process.env.PATH = npmPath + ':' + process.env.PATH;
+
+      let duringhttp = pkg.stdlib.scripts.duringhttp;
+      let cmds = duringhttp instanceof Array ? duringhttp : [duringhttp];
+      for (let i = 0; i < cmds.length; i++) {
+        let cmd = cmds[i].split(' ');
+        if (!cmd.length) {
+          continue;
+        }
+        let command = spawn(cmd[0], cmd.slice(1), {stdio: [0, 1, 2]});
+        command.on('error', err => {
+          callback(new Error('Error running preup scripts'));
+        });
+      }
     }
 
   }
