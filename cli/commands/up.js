@@ -9,7 +9,7 @@ const async = require('async');
 const tar = require('tar-stream');
 const zlib = require('zlib');
 const path = require('path');
-const execSync = require('child_process').execSync;
+const spawnSync = require('child_process').spawnSync;
 
 function readFiles(base, properties, dir, data) {
 
