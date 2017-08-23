@@ -1,9 +1,12 @@
+// NOTE: This follows the same codepath as commands/create.js so any changes there
+// will most likely need to be done here as well
+
 'use strict';
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
-const fileio = require('../fileio.js');
+const Credentials = require('../../credentials.js');
+const fileio = require('../../fileio.js');
 
 const async = require('async');
 const inquirer = require('inquirer');
@@ -32,20 +35,20 @@ function deepAssign(o1, o2) {
   });
 }
 
-class CreateCommand extends Command {
+class TemplateCreateCommand extends Command {
 
   constructor() {
 
-    super('create');
+    super('template', 'create');
 
   }
 
   help() {
 
     return {
-      description: 'Creates a new (local) service',
+      description: 'Creates a new (local) template',
       args: [
-        'service'
+        'template'
       ],
       flags: {
         n: 'No login - don\'t require an internet connection',
@@ -92,7 +95,7 @@ class CreateCommand extends Command {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
-      console.log(`You're trying to create a new service in development,`);
+      console.log(`You're trying to create a new template in development,`);
       console.log(`But you're not in a root stdlib project directory.`);
       console.log(`We recommend against this.`);
       console.log();
@@ -102,7 +105,7 @@ class CreateCommand extends Command {
     }
 
     console.log();
-    console.log(`Awesome! Let's create a ${chalk.bold.green('stdlib')} service!`);
+    console.log(`Awesome! Let's create a ${chalk.bold.green('stdlib')} template!`);
     extPkgName && console.log(`We'll use the template ${chalk.bold.green(extPkgName)} to proceed.`);
     console.log();
 
@@ -112,7 +115,7 @@ class CreateCommand extends Command {
       name: 'name',
       type: 'input',
       default: '',
-      message: 'Service Name'
+      message: 'Template Name'
     });
 
     let login = [];
@@ -180,6 +183,11 @@ class CreateCommand extends Command {
                 cb(err, result);
               });
             }
+            //, cb =>{
+            //   utils.templates[develop ? '@local' : '@release'].template({name: extPkgName}, (err, result) => {
+            //     cb(err, result);
+            //   });
+            // }
           ];
 
         }
@@ -198,12 +206,12 @@ class CreateCommand extends Command {
           }
 
           !fs.existsSync(username) && fs.mkdirSync(username);
-          let serviceName = [username, name].join('/');
-          let servicePath = path.join(process.cwd(), username, name);
-          let fPath = path.join(servicePath, 'functions');
+          let templateName = [username, name].join('/');
+          let templatePath = path.join(process.cwd(), username, name);
+          let fPath = path.join(templatePath, 'functions');
           let functionPath;
 
-          if (fs.existsSync(servicePath)) {
+          if (fs.existsSync(templatePath)) {
 
             if (!write) {
 
@@ -211,7 +219,7 @@ class CreateCommand extends Command {
               console.log(chalk.bold.red('Oops!'));
               console.log();
               console.log(`The directory you're creating a stdlib project in already exists:`);
-              console.log(`  ${chalk.bold(servicePath)}`);
+              console.log(`  ${chalk.bold(templatePath)}`);
               console.log();
               console.log(`Try removing the existing directory first.`);
               console.log();
@@ -223,13 +231,16 @@ class CreateCommand extends Command {
 
           } else {
 
-            fs.mkdirSync(servicePath);
+            fs.mkdirSync(templatePath);
             fs.mkdirSync(fPath);
 
           }
 
+          console.log(__dirname);
+          console.log(`/../templates/${build}/package.json`);
           let json = {
-            pkg: require(path.join(__dirname, `../templates/${build}/package.json`))
+            pkg: require(path.join(__dirname, `../../templates/${build}/package.json`)),
+            template: require(path.join(__dirname, `../../templates/${build}/template.json`))
           };
 
           json.pkg.name = name;
@@ -250,25 +261,31 @@ class CreateCommand extends Command {
               ));
             }
             deepAssign(json.pkg, extPkg.pkg);
+            deepAssign(json.template, extPkg.template);
             json.pkg.originTemplate = extPkgName;
           }
 
           fileio.writeFiles(
-            serviceName,
+            templateName,
             fileio.readTemplateFiles(
-              path.join(__dirname, '..', 'templates', build)
+              path.join(__dirname, '../..', 'templates', build)
             )
           );
 
           fs.writeFileSync(
-            path.join(servicePath, 'package.json'),
+            path.join(templatePath, 'package.json'),
             JSON.stringify(json.pkg, null, 2)
+          );
+
+          fs.writeFileSync(
+            path.join(templatePath, 'template.json'),
+            JSON.stringify(json.template, null, 2)
           );
 
           let fns = [];
           if (extPkg && extPkg.files && extPkg.files.length) {
             fns.push(cb => {
-              fileio.extract(serviceName, extPkg.files, (err) => {
+              fileio.extract(templateName, extPkg.files, (err) => {
                 if (err) {
                   console.error(err);
                   return cb(new Error(`Could not install template ${extPkgName}`));
@@ -295,7 +312,7 @@ class CreateCommand extends Command {
                 ['install'],
                 {
                   stdio: [0, 1, 2],
-                  cwd: servicePath,
+                  cwd: templatePath,
                   env: process.env
                 }
               );
@@ -308,7 +325,7 @@ class CreateCommand extends Command {
             console.log(chalk.bold.green('Success!'));
             console.log();
             console.log(`Service ${chalk.bold([username, name].join('/'))} created at:`);
-            console.log(`  ${chalk.bold(servicePath)}`);
+            console.log(`  ${chalk.bold(templatePath)}`);
             console.log();
             console.log(`Use the following to enter your service directory:`);
             console.log(`  ${chalk.bold('cd ' + [username, name].join('/'))}`);
@@ -329,4 +346,4 @@ class CreateCommand extends Command {
 
 }
 
-module.exports = CreateCommand;
+module.exports = TemplateCreateCommand;
