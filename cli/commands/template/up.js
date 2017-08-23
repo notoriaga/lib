@@ -1,3 +1,5 @@
+// TODO: Change this to use commands/up.js
+
 'use strict';
 
 const Command = require('cmnd').Command;
