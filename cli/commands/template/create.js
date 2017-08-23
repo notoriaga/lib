@@ -324,10 +324,10 @@ class TemplateCreateCommand extends Command {
 
             console.log(chalk.bold.green('Success!'));
             console.log();
-            console.log(`Service ${chalk.bold([username, name].join('/'))} created at:`);
+            console.log(`Template ${chalk.bold([username, name].join('/'))} created at:`);
             console.log(`  ${chalk.bold(templatePath)}`);
             console.log();
-            console.log(`Use the following to enter your service directory:`);
+            console.log(`Use the following to enter your Template directory:`);
             console.log(`  ${chalk.bold('cd ' + [username, name].join('/'))}`);
             console.log();
             console.log(`Type ${chalk.bold('lib help')} for more commands.`);
