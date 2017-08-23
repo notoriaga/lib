@@ -23,7 +23,7 @@ class TemplateGetCommand extends Command {
     return {
       description: 'Retrieves and extracts StdLib template',
       args: [
-        'full service name'
+        'full template name'
       ],
       flags: {
         f: 'Force command if not in root directory',
@@ -39,17 +39,17 @@ class TemplateGetCommand extends Command {
 
   run(params, callback) {
 
-    let service = params.args[0] || '';
+    let template = params.args[0] || '';
     let outputPath = params.flags.o || params.vflags.output || [];
     outputPath = outputPath[0] || '.';
 
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
 
-    let pathname = path.join(outputPath, service);
+    let pathname = path.join(outputPath, template);
     pathname = outputPath[0] !== '/' ? path.join(process.cwd(), pathname) : pathname;
 
-    if (!service) {
+    if (!template) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
@@ -62,11 +62,11 @@ class TemplateGetCommand extends Command {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
-      console.log(`You're trying to retrieve a package,`);
+      console.log(`You're trying to retrieve a template,`);
       console.log(`But you're not in a root stdlib project directory.`);
       console.log(`We recommend against this.`);
       console.log();
-      console.log(`Use ${chalk.bold('lib get ' + service + ' --force')} to override.`);
+      console.log(`Use ${chalk.bold('lib get ' + template + ' --force')} to override.`);
       console.log();
       return callback(null);
     }
@@ -80,7 +80,7 @@ class TemplateGetCommand extends Command {
       console.log();
       console.log(`Try removing the existing directory first.`);
       console.log();
-      console.log(`Use ${chalk.bold('lib get ' + service + ' --write-over')} to override.`);
+      console.log(`Use ${chalk.bold('lib get ' + template + ' --write-over')} to override.`);
       console.log();
       return callback(null);
     }
@@ -101,7 +101,7 @@ class TemplateGetCommand extends Command {
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-    let endpoint = `templates/${service}/package.tgz`;
+    let endpoint = `templates/${template}/package.tgz`;
 
     console.log();
     console.log(`Retrieving ${chalk.bold(host + '/' + endpoint)}...`);
@@ -124,7 +124,7 @@ class TemplateGetCommand extends Command {
         }
       }
 
-      let tmpPath = `/tmp/${service.replace(/\//g, '.')}.tgz`;
+      let tmpPath = `/tmp/${template.replace(/\//g, '.')}.tgz`;
       try {
         fs.writeFileSync(tmpPath, response);
       } catch (e) {
@@ -143,7 +143,7 @@ class TemplateGetCommand extends Command {
 
         console.log(chalk.bold.green('Success!'));
         console.log();
-        console.log(`${chalk.bold(service)} package retrieved to:`);
+        console.log(`${chalk.bold(template)} template retrieved to:`);
         console.log(`  ${chalk.bold(pathname)}`);
         console.log();
         return callback(null);

@@ -71,10 +71,10 @@ class TemplateUpCommand extends Command {
         'environment'
       ],
       flags: {
-        r: 'Upload a release package'
+        r: 'Upload a release template'
       },
       vflags: {
-        release: 'Upload a release package',
+        release: 'Upload a release template',
       }
     };
 
