@@ -231,11 +231,9 @@ class SourceCreateCommand extends Command {
 
           }
 
-          console.log(__dirname);
-          console.log(`/../sources/${build}/package.json`);
           let json = {
-            pkg: require(path.join(__dirname, `../../sources/${build}/package.json`)),
-            source: require(path.join(__dirname, `../../sources/${build}/source.json`))
+            pkg: require(path.join(__dirname, `../../templates/${build}/package.json`)),
+            source: require(path.join(__dirname, `../../templates/${build}/source.json`))
           };
 
           json.pkg.name = name;
@@ -263,7 +261,7 @@ class SourceCreateCommand extends Command {
           fileio.writeFiles(
             sourceName,
             fileio.readTemplateFiles(
-              path.join(__dirname, '../..', 'sources', build)
+              path.join(__dirname, '../..', 'templates', build)
             )
           );
 

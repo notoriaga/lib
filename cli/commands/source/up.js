@@ -66,7 +66,7 @@ class SourceUpCommand extends Command {
   help() {
 
     return {
-      description: 'Pushes StdLib source code to registry and cloud environment',
+      description: 'Pushes StdLib source code to the registry and cloud environment',
       args: [
         'environment'
       ],

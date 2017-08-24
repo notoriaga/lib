@@ -66,7 +66,7 @@ class SourceGetCommand extends Command {
       console.log(`But you're not in a root stdlib project directory.`);
       console.log(`We recommend against this.`);
       console.log();
-      console.log(`Use ${chalk.bold('lib get ' + template + ' --force')} to override.`);
+      console.log(`Use ${chalk.bold('lib get ' + source + ' --force')} to override.`);
       console.log();
       return callback(null);
     }
@@ -80,7 +80,7 @@ class SourceGetCommand extends Command {
       console.log();
       console.log(`Try removing the existing directory first.`);
       console.log();
-      console.log(`Use ${chalk.bold('lib get ' + template + ' --write-over')} to override.`);
+      console.log(`Use ${chalk.bold('lib get ' + source + ' --write-over')} to override.`);
       console.log();
       return callback(null);
     }
@@ -143,7 +143,7 @@ class SourceGetCommand extends Command {
 
         console.log(chalk.bold.green('Success!'));
         console.log();
-        console.log(`${chalk.bold(template)} source code retrieved to:`);
+        console.log(`${chalk.bold(source)} source code retrieved to:`);
         console.log(`  ${chalk.bold(pathname)}`);
         console.log();
         return callback(null);
