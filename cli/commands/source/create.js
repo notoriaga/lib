@@ -35,33 +35,33 @@ function deepAssign(o1, o2) {
   });
 }
 
-class TemplateCreateCommand extends Command {
+class SourceCreateCommand extends Command {
 
   constructor() {
 
-    super('template', 'create');
+    super('source', 'create');
 
   }
 
   help() {
 
     return {
-      description: 'Creates a new (local) template',
+      description: 'Creates new (local) source code',
       args: [
-        'template'
+        'source'
       ],
       flags: {
         n: 'No login - don\'t require an internet connection',
         w: 'Write over - overwrite the current directory contents',
-        t: 'Template - a stdlib service template to use',
-        d: 'Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)',
+        s: 'Source - stdlib source code to use',
+        d: 'Dev Mode - Specify another HTTP address for the source code (e.g. localhost:8170)',
         b: `Build - Specify build, ${DEFAULT_BUILD} (default) or ${OTHER_BUILDS.map(v => `"${v}"`).join(', ')}`
       },
       vflags: {
         'no-login': 'No login - don\'t require an internet connection',
         'write-over': 'Write over - overwrite the current directory contents',
-        'template': 'Template - a stdlib service template to use',
-        'develop': 'Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)',
+        'source': 'Source - stdlib source code to use',
+        'develop': 'Dev Mode - Specify another HTTP address for the source code (e.g. localhost:8170)',
         'build': `Build - Specify build, ${DEFAULT_BUILD} (default) or ${OTHER_BUILDS.map(v => `"${v}"`).join(', ')}`
       }
     };
@@ -88,14 +88,14 @@ class TemplateCreateCommand extends Command {
       return callback(new Error(`Invalid build: "${build}"`));
     }
 
-    let extPkgName = (params.flags.t || params.vflags.template || [])[0];
+    let extPkgName = (params.flags.s || params.vflags.source || [])[0];
     let extPkg = null;
 
     if (!force && !Credentials.location(1)) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
-      console.log(`You're trying to create a new template in development,`);
+      console.log(`You're trying to create source code in development,`);
       console.log(`But you're not in a root stdlib project directory.`);
       console.log(`We recommend against this.`);
       console.log();
@@ -105,8 +105,8 @@ class TemplateCreateCommand extends Command {
     }
 
     console.log();
-    console.log(`Awesome! Let's create a ${chalk.bold.green('stdlib')} template!`);
-    extPkgName && console.log(`We'll use the template ${chalk.bold.green(extPkgName)} to proceed.`);
+    console.log(`Awesome! Let's create new ${chalk.bold.green('stdlib')} source code!`);
+    extPkgName && console.log(`We'll use the source code ${chalk.bold.green(extPkgName)} to proceed.`);
     console.log();
 
     let questions = [];
@@ -115,7 +115,7 @@ class TemplateCreateCommand extends Command {
       name: 'name',
       type: 'input',
       default: '',
-      message: 'Template Name'
+      message: 'Source Code Name'
     });
 
     let login = [];
@@ -161,12 +161,12 @@ class TemplateCreateCommand extends Command {
 
         username = username || user.username;
 
-        // Do template fetching...
+        // Do source fetching...
         let extPkgCalls = [];
 
         if (extPkgName) {
 
-          console.log(`Fetching template ${chalk.bold.green(extPkgName)}...`);
+          console.log(`Fetching source code ${chalk.bold.green(extPkgName)}...`);
           console.log();
           let utils = develop ?
             lib({host: develop.split(':')[0], port: develop.split(':')[1]}).utils :
@@ -174,20 +174,15 @@ class TemplateCreateCommand extends Command {
 
           extPkgCalls = [
             cb => {
-              utils.templates[develop ? '@local' : '@release'].package({name: extPkgName}, (err, result) => {
+              utils.sources[develop ? '@local' : '@release'].package({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             },
             cb => {
-              utils.templates[develop ? '@local' : '@release'].files({name: extPkgName}, (err, result) => {
+              utils.sources[develop ? '@local' : '@release'].files({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             }
-            //, cb =>{
-            //   utils.templates[develop ? '@local' : '@release'].template({name: extPkgName}, (err, result) => {
-            //     cb(err, result);
-            //   });
-            // }
           ];
 
         }
@@ -195,7 +190,7 @@ class TemplateCreateCommand extends Command {
         async.series(extPkgCalls, (err, results) => {
 
           if (err) {
-            return callback(new Error(`Error retrieving template: ${extPkgName}`));
+            return callback(new Error(`Error retrieving source code: ${extPkgName}`));
           }
 
           if (results.length === 2) {
@@ -206,12 +201,12 @@ class TemplateCreateCommand extends Command {
           }
 
           !fs.existsSync(username) && fs.mkdirSync(username);
-          let templateName = [username, name].join('/');
-          let templatePath = path.join(process.cwd(), username, name);
-          let fPath = path.join(templatePath, 'functions');
+          let sourceName = [username, name].join('/');
+          let sourcePath = path.join(process.cwd(), username, name);
+          let fPath = path.join(sourcePath, 'functions');
           let functionPath;
 
-          if (fs.existsSync(templatePath)) {
+          if (fs.existsSync(sourcePath)) {
 
             if (!write) {
 
@@ -219,7 +214,7 @@ class TemplateCreateCommand extends Command {
               console.log(chalk.bold.red('Oops!'));
               console.log();
               console.log(`The directory you're creating a stdlib project in already exists:`);
-              console.log(`  ${chalk.bold(templatePath)}`);
+              console.log(`  ${chalk.bold(sourcePath)}`);
               console.log();
               console.log(`Try removing the existing directory first.`);
               console.log();
@@ -231,16 +226,16 @@ class TemplateCreateCommand extends Command {
 
           } else {
 
-            fs.mkdirSync(templatePath);
+            fs.mkdirSync(sourcePath);
             fs.mkdirSync(fPath);
 
           }
 
           console.log(__dirname);
-          console.log(`/../templates/${build}/package.json`);
+          console.log(`/../sources/${build}/package.json`);
           let json = {
-            pkg: require(path.join(__dirname, `../../templates/${build}/package.json`)),
-            template: require(path.join(__dirname, `../../templates/${build}/template.json`))
+            pkg: require(path.join(__dirname, `../../sources/${build}/package.json`)),
+            source: require(path.join(__dirname, `../../sources/${build}/source.json`))
           };
 
           json.pkg.name = name;
@@ -256,39 +251,39 @@ class TemplateCreateCommand extends Command {
               DEFAULT_BUILD;
             if (build !== extBuild) {
               return callback(new Error(
-                `Can not use this template with this build\n` +
+                `Can not use this source with this build\n` +
                 `Try \`lib create -t ${extPkgName} -b ${extBuild}\` instead`
               ));
             }
             deepAssign(json.pkg, extPkg.pkg);
-            deepAssign(json.template, extPkg.template);
-            json.pkg.originTemplate = extPkgName;
+            deepAssign(json.source, extPkg.source);
+            json.pkg.originSourceCode = extPkgName;
           }
 
           fileio.writeFiles(
-            templateName,
+            sourceName,
             fileio.readTemplateFiles(
-              path.join(__dirname, '../..', 'templates', build)
+              path.join(__dirname, '../..', 'sources', build)
             )
           );
 
           fs.writeFileSync(
-            path.join(templatePath, 'package.json'),
+            path.join(sourcePath, 'package.json'),
             JSON.stringify(json.pkg, null, 2)
           );
 
           fs.writeFileSync(
-            path.join(templatePath, 'template.json'),
-            JSON.stringify(json.template, null, 2)
+            path.join(sourcePath, 'source.json'),
+            JSON.stringify(json.source, null, 2)
           );
 
           let fns = [];
           if (extPkg && extPkg.files && extPkg.files.length) {
             fns.push(cb => {
-              fileio.extract(templateName, extPkg.files, (err) => {
+              fileio.extract(sourceName, extPkg.files, (err) => {
                 if (err) {
                   console.error(err);
-                  return cb(new Error(`Could not install template ${extPkgName}`));
+                  return cb(new Error(`Could not install source code ${extPkgName}`));
                 }
                 cb();
               });
@@ -312,7 +307,7 @@ class TemplateCreateCommand extends Command {
                 ['install'],
                 {
                   stdio: [0, 1, 2],
-                  cwd: templatePath,
+                  cwd: sourcePath,
                   env: process.env
                 }
               );
@@ -324,10 +319,10 @@ class TemplateCreateCommand extends Command {
 
             console.log(chalk.bold.green('Success!'));
             console.log();
-            console.log(`Template ${chalk.bold([username, name].join('/'))} created at:`);
-            console.log(`  ${chalk.bold(templatePath)}`);
+            console.log(`Source ${chalk.bold([username, name].join('/'))} created at:`);
+            console.log(`  ${chalk.bold(sourcePath)}`);
             console.log();
-            console.log(`Use the following to enter your Template directory:`);
+            console.log(`Use the following to enter your Source directory:`);
             console.log(`  ${chalk.bold('cd ' + [username, name].join('/'))}`);
             console.log();
             console.log(`Type ${chalk.bold('lib help')} for more commands.`);
@@ -346,4 +341,4 @@ class TemplateCreateCommand extends Command {
 
 }
 
-module.exports = TemplateCreateCommand;
+module.exports = SourceCreateCommand;

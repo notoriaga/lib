@@ -10,20 +10,20 @@ const Credentials = require('../../credentials.js');
 
 const chalk = require('chalk');
 
-class TemplateGetCommand extends Command {
+class SourceGetCommand extends Command {
 
   constructor() {
 
-    super('template', 'get');
+    super('source', 'get');
 
   }
 
   help() {
 
     return {
-      description: 'Retrieves and extracts StdLib template',
+      description: 'Retrieves and extracts StdLib source code',
       args: [
-        'full template name'
+        'full source code name'
       ],
       flags: {
         f: 'Force command if not in root directory',
@@ -39,21 +39,21 @@ class TemplateGetCommand extends Command {
 
   run(params, callback) {
 
-    let template = params.args[0] || '';
+    let source = params.args[0] || '';
     let outputPath = params.flags.o || params.vflags.output || [];
     outputPath = outputPath[0] || '.';
 
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
 
-    let pathname = path.join(outputPath, template);
+    let pathname = path.join(outputPath, source);
     pathname = outputPath[0] !== '/' ? path.join(process.cwd(), pathname) : pathname;
 
-    if (!template) {
+    if (!source) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
-      console.log(`Please specify a template name`);
+      console.log(`Please specify source code name`);
       console.log();
       return callback(null);
     }
@@ -62,7 +62,7 @@ class TemplateGetCommand extends Command {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
-      console.log(`You're trying to retrieve a template,`);
+      console.log(`You're trying to retrieve source code,`);
       console.log(`But you're not in a root stdlib project directory.`);
       console.log(`We recommend against this.`);
       console.log();
@@ -101,7 +101,7 @@ class TemplateGetCommand extends Command {
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-    let endpoint = `templates/${template}/package.tgz`;
+    let endpoint = `sources/${source}/package.tgz`;
 
     console.log();
     console.log(`Retrieving ${chalk.bold(host + '/' + endpoint)}...`);
@@ -124,7 +124,7 @@ class TemplateGetCommand extends Command {
         }
       }
 
-      let tmpPath = `/tmp/${template.replace(/\//g, '.')}.tgz`;
+      let tmpPath = `/tmp/${source.replace(/\//g, '.')}.tgz`;
       try {
         fs.writeFileSync(tmpPath, response);
       } catch (e) {
@@ -143,7 +143,7 @@ class TemplateGetCommand extends Command {
 
         console.log(chalk.bold.green('Success!'));
         console.log();
-        console.log(`${chalk.bold(template)} template retrieved to:`);
+        console.log(`${chalk.bold(template)} source code retrieved to:`);
         console.log(`  ${chalk.bold(pathname)}`);
         console.log();
         return callback(null);
@@ -156,4 +156,4 @@ class TemplateGetCommand extends Command {
 
 }
 
-module.exports = TemplateGetCommand;
+module.exports = SourceGetCommand;

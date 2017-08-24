@@ -5,18 +5,18 @@ const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
 
-class TemplateAdd extends Command {
+class SourceAdd extends Command {
 
   constructor() {
 
-    super('template', 'add');
+    super('source', 'add');
 
   }
 
   help() {
 
     return {
-      description: 'Convert a StdLib service into a template'
+      description: 'Convert a StdLib service into source code'
     };
 
   }
@@ -36,23 +36,23 @@ class TemplateAdd extends Command {
     }
 
     let build = pkg.stdlib.build;
-    let template = require(path.join(__dirname,`../../templates/${build}/template.json`));
-    let templatePath = path.join(process.cwd(), 'template.json');
+    let source = require(path.join(__dirname,`../../templates/${build}/source.json`));
+    let sourcePath = path.join(process.cwd(), 'source.json');
 
-    if (fs.existsSync(templatePath)) {
-      return callback(new Error('template.json already exists'));
+    if (fs.existsSync(sourcePath)) {
+      return callback(new Error('source.json already exists'));
     }
 
     fs.writeFileSync(
-      templatePath,
-      JSON.stringify(template, null, 2)
+      sourcePath,
+      JSON.stringify(source, null, 2)
     );
 
     console.log();
     console.log(chalk.bold.green('Success!'));
     console.log();
-    console.log(`template.json created at:`);
-    console.log(`  ${chalk.bold(templatePath)}`);
+    console.log(`source.json created at:`);
+    console.log(`  ${chalk.bold(sourcePath)}`);
     console.log();
 
     return callback(null);
@@ -60,4 +60,4 @@ class TemplateAdd extends Command {
 
 }
 
-module.exports = TemplateAdd;
+module.exports = SourceAdd;

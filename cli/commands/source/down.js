@@ -7,18 +7,18 @@ const Credentials = require('../../credentials.js');
 const fs = require('fs');
 const path = require('path');
 
-class TemplateDownCommand extends Command {
+class SourceDownCommand extends Command {
 
   constructor() {
 
-    super('template', 'down');
+    super('source', 'down');
 
   }
 
   help() {
 
     return {
-      description: 'Removes StdLib template from registry and cloud environment',
+      description: 'Removes StdLib source code from registry and cloud environment',
       args: [
         'environment'
       ],
@@ -82,8 +82,8 @@ class TemplateDownCommand extends Command {
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
     let endpoint = environment ?
-      `templates/${pkg.stdlib.name}@${environment}` :
-      `templates/${pkg.stdlib.name}@${version || pkg.version}`;
+      `sources/${pkg.stdlib.name}@${environment}` :
+      `sources/${pkg.stdlib.name}@${version || pkg.version}`;
 
     return resource.request(endpoint).stream(
       'DELETE',
@@ -110,4 +110,4 @@ class TemplateDownCommand extends Command {
 
 }
 
-module.exports = TemplateDownCommand;
+module.exports = SourceDownCommand;

@@ -55,26 +55,26 @@ function readFiles(base, properties, dir, data) {
 
 };
 
-class TemplateUpCommand extends Command {
+class SourceUpCommand extends Command {
 
   constructor() {
 
-    super('template', 'up');
+    super('source', 'up');
 
   }
 
   help() {
 
     return {
-      description: 'Pushes StdLib template to registry and cloud environment',
+      description: 'Pushes StdLib source code to registry and cloud environment',
       args: [
         'environment'
       ],
       flags: {
-        r: 'Upload a release template'
+        r: 'Upload release source code'
       },
       vflags: {
-        release: 'Upload a release template',
+        release: 'Upload release source code',
       }
     };
 
@@ -127,12 +127,12 @@ class TemplateUpCommand extends Command {
       return callback(new Error('No stdlib name set in "package.json"'));
     }
 
-    let template;
+    let source;
 
     try {
-      template = require(path.join(process.cwd(), 'template.json'));
+      source = require(path.join(process.cwd(), 'source.json'));
     } catch(e) {
-      return callback(new Error('Invalid template.json'));
+      return callback(new Error('Invalid source.json'));
     }
 
     scripts.run(pkg, 'preup', environment, {version: pkg.version}, err => {
@@ -200,8 +200,8 @@ class TemplateUpCommand extends Command {
           let t = new Date().valueOf() - start;
 
           let endpoint = environment === RELEASE_ENV ?
-            `templates/${pkg.stdlib.name}@${pkg.version}` :
-            `templates/${pkg.stdlib.name}@${environment}`;
+            `sources/${pkg.stdlib.name}@${pkg.version}` :
+            `sources/${pkg.stdlib.name}@${environment}`;
 
           return resource
             .request(endpoint)
@@ -237,4 +237,4 @@ class TemplateUpCommand extends Command {
 
 }
 
-module.exports = TemplateUpCommand;
+module.exports = SourceUpCommand;
