@@ -317,7 +317,7 @@ class SourceCreateCommand extends Command {
 
             console.log(chalk.bold.green('Success!'));
             console.log();
-            console.log(`Source ${chalk.bold([username, name].join('/'))} created at:`);
+            console.log(`Source code ${chalk.bold([username, name].join('/'))} created at:`);
             console.log(`  ${chalk.bold(sourcePath)}`);
             console.log();
             console.log(`Use the following to enter your Source directory:`);

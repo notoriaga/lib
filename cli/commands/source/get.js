@@ -143,7 +143,7 @@ class SourceGetCommand extends Command {
 
         console.log(chalk.bold.green('Success!'));
         console.log();
-        console.log(`${chalk.bold(source)} source code retrieved to:`);
+        console.log(`Source code ${chalk.bold(source)} retrieved to:`);
         console.log(`  ${chalk.bold(pathname)}`);
         console.log();
         return callback(null);
