@@ -53,7 +53,7 @@ class SourceCreateCommand extends Command {
       flags: {
         n: 'No login - don\'t require an internet connection',
         w: 'Write over - overwrite the current directory contents',
-        s: 'Source - stdlib source code to use',
+        s: 'Source - StdLib source code to use',
         d: 'Dev Mode - Specify another HTTP address for the source code (e.g. localhost:8170)',
         b: `Build - Specify build, ${DEFAULT_BUILD} (default) or ${OTHER_BUILDS.map(v => `"${v}"`).join(', ')}`
       },
@@ -67,6 +67,7 @@ class SourceCreateCommand extends Command {
     };
 
   }
+
 
   run(params, callback) {
 
@@ -232,8 +233,8 @@ class SourceCreateCommand extends Command {
           }
 
           let json = {
-            pkg: require(path.join(__dirname, `../../templates/${build}/package.json`)),
-            source: require(path.join(__dirname, `../../templates/${build}/source.json`))
+            pkg: require(path.join(__dirname, `../../templates/sourceCode/package.json`)),
+            source: require(path.join(__dirname, `../../templates/sourceCode/source.json`))
           };
 
           json.pkg.name = name;

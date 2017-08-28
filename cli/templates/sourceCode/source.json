@@ -1,0 +1,13 @@
+{
+  "environmentVariables": {
+    "local": {
+      "key": "sourceCodeValue"
+    },
+    "dev": {
+      "key": "sourceCodeValue"
+    },
+    "release": {
+      "key": "sourceCodeValue"
+    }
+  }
+}

@@ -28,10 +28,12 @@ class SourceGetCommand extends Command {
       flags: {
         f: 'Force command if not in root directory',
         w: 'Write over - overwrite the target directory contents',
+        s: 'Service - create a service from the source code',
       },
       vflags: {
         'force': 'Force command if not in root directory',
         'write-over': 'Write over - overwrite the target directory contents',
+        'service': 'Service - create a service from the source code',
       }
     };
 
@@ -108,7 +110,6 @@ class SourceGetCommand extends Command {
     console.log();
 
     return resource.request(endpoint).index({}, (err, response) => {
-
       if (err) {
         return callback(err);
       }
@@ -143,9 +144,30 @@ class SourceGetCommand extends Command {
 
         console.log(chalk.bold.green('Success!'));
         console.log();
-        console.log(`Source code ${chalk.bold(source)} retrieved to:`);
-        console.log(`  ${chalk.bold(pathname)}`);
-        console.log();
+
+        if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
+
+          let sourceJSON = require(path.join(pathname, 'source.json'));
+
+          fs.writeFileSync(
+            path.join(pathname, 'env.json'),
+            JSON.stringify(sourceJSON.environmentVariables, null, 2)
+          );
+
+          fs.unlinkSync(path.join(pathname, 'source.json'));
+
+          console.log(`Service created from source code: ${chalk.bold(source)}`);
+          console.log(`  ${chalk.bold(pathname)}`);
+          console.log();
+
+        } else {
+
+          console.log(`Source code ${chalk.bold(source)} retrieved to:`);
+          console.log(`  ${chalk.bold(pathname)}`);
+          console.log();
+
+        }
+
         return callback(null);
 
       });
@@ -157,3 +179,40 @@ class SourceGetCommand extends Command {
 }
 
 module.exports = SourceGetCommand;
+
+
+// if (sourceCodeName) {
+//   extPkgCalls.push();
+//
+//   console.log(`Fetching source code ${chalk.bold.green(sourceCodeName)}...`);
+//   console.log();
+//
+//   params.name = 'get';
+//   params.args = params.flags['s'];
+//   sourceGetCommand.prototype.run.call(this, params, (err) => {
+//
+//     console.log('in callback');
+//
+//     if (err) {
+//       return callback(err);
+//     }
+//
+//     let servicePath = path.join(process.cwd(), username, name);
+//     let source = require(path.join(servicePath, 'source.json'));
+//
+//
+//     fs.writeFileSync(
+//       path.join(servicePath, 'env.json'),
+//       JSON.stringify(source.environmentVariables, null, 2)
+//     );
+//
+//     fs.unlinkSync(path.join(servicePath, 'source.json'));
+//
+//     return callback(null);
+//
+//   });
+//
+// }
+//
+//     let sourceCodeName = (params.flags.s || params.vflags.source || [])[0];
+//    let sourceCode = null;
