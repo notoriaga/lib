@@ -195,8 +195,8 @@ function getUserName(staging, port) {
 
   return new Promise(function(resolve, reject) {
 
-    let host = staging ? 'api.jacobb.us' : 'api.polybit.com'
-
+  //  let host = staging ? 'api.jacobb.us' : 'api.polybit.com'
+    let host = 'api.jacobb.us';
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
