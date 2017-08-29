@@ -36,7 +36,7 @@ class SourceAdd extends Command {
     }
 
     let build = pkg.stdlib.build;
-    let source = require(path.join(__dirname,`../../templates/${build}/source.json`));
+    let source = require(path.join(__dirname,`../../templates/sourceCode/source.json`));
     let sourcePath = path.join(process.cwd(), 'source.json');
 
     if (fs.existsSync(sourcePath)) {

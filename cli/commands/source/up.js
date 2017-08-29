@@ -154,7 +154,7 @@ class SourceUpCommand extends Command {
 
       let pack = tar.pack();
 
-      let defignore = ['/node_modules', '/.stdlib', '/.git', '.DS_Store'];
+      let defignore = ['/node_modules', '/.stdlib', '/.git', '.DS_Store', 'env.json'];
       let libignore = fs.existsSync('.libignore') ? fs.readFileSync('.libignore').toString() : '';
       libignore = libignore.split('\n').map(v => v.replace(/^\s(.*)\s$/, '$1')).filter(v => v);
       while (defignore.length) {

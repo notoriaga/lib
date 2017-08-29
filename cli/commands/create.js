@@ -98,8 +98,21 @@ class CreateCommand extends Command {
       params.args[0] = params.flags['s'][0] || params.flags['source'][0]
       params.args = params.flags['s'];
 
-      sourceGetCommand.prototype.run.call(this, params, () => {
-        return callback(null);
+      let questions = [{
+        name: 'name',
+        type: 'input',
+        default: '',
+        message: 'Service Name'
+      }];
+
+      inquirer.prompt(questions, (promptResult) => {
+
+        params.flags.name = promptResult.name;
+
+        sourceGetCommand.prototype.run.call(this, params, () => {
+          return callback(null);
+        });
+
       });
 
     } else {
@@ -137,9 +150,7 @@ class CreateCommand extends Command {
         let resource = new APIResource(host, port);
         resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-        resource.request('v1/users').index({
-          me: true
-        }, (err, response) => {
+        resource.request('v1/users').index({me: true}, (err, response) => {
 
           if (err) {
             return cb(err);
@@ -174,6 +185,7 @@ class CreateCommand extends Command {
             username: 'dev',
             email: ''
           };
+
           let user = nologin ? defaultUser : results[0];
           user = user || defaultUser;
 
