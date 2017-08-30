@@ -62,7 +62,7 @@ class SourceGetCommand extends Command {
 
       let pathname;
 
-      if (name) {
+      if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
         pathname = `${results}/${name}`
       } else {
         pathname = source
@@ -128,8 +128,10 @@ class SourceGetCommand extends Command {
           let relpath = pathname.split(path.sep).slice(0, i + 1).join(path.sep);
 
           try {
+
             let user, service;
-            [user, service] = relpath.split('/');
+            [user, service] = relpath.split(path.sep);
+
             if (!fs.existsSync(user)) {
               fs.mkdirSync(user)
             }
@@ -167,12 +169,16 @@ class SourceGetCommand extends Command {
           if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
             // with -s we copy over source.json fields and delete it
 
-            //let sourceJSON = require(path.join(pathname, 'source.json')); why doesn't this work??
             let sourceJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'source.json'), 'utf8'));
+            let envJSON = {
+              local: sourceJSON.environmentVariables,
+              dev: sourceJSON.environmentVariables,
+              release: sourceJSON.environmentVariables
+            }
 
             fs.writeFileSync(
               path.join(pathname, 'env.json'),
-              JSON.stringify(sourceJSON.environmentVariables, null, 2)
+              JSON.stringify(envJSON, null, 2)
             );
 
             fs.unlinkSync(path.join(pathname, 'source.json'));
