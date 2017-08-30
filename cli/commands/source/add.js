@@ -43,6 +43,21 @@ class SourceAdd extends Command {
       return callback(new Error('source.json already exists'));
     }
 
+    let envPath = path.join(process.cwd(), 'env.json');
+
+    if (fs.existsSync(envPath)) {
+      //fill source.json with environment variables
+      source.environmentVariables = {};
+      let envJSON = require(envPath);
+
+      for (var env in envJSON) {
+        source.environmentVariables[env] = {};
+        for (var field in envJSON[env]) {
+          source.environmentVariables[env][field] = 'description';
+        }
+      }
+    }
+
     fs.writeFileSync(
       sourcePath,
       JSON.stringify(source, null, 2)
