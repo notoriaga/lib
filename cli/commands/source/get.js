@@ -42,7 +42,7 @@ class SourceGetCommand extends Command {
   run(params, callback) {
 
     let source = params.args[0] || '';
-    let name = params.flags.name;
+    let name = params.name;
 
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
@@ -116,19 +116,31 @@ class SourceGetCommand extends Command {
       return resource.request(endpoint).index({}, (err, response) => {
 
         if (err) {
+          console.log(err);
+          console.log(new Error(`Error making request to ${endpoint}`));
           return callback(err);
         }
 
         let directories = pathname.split(path.sep);
 
         for (let i = 1; i < directories.length; i++) {
+
           let relpath = pathname.split(path.sep).slice(0, i + 1).join(path.sep);
+
           try {
+            let user, service;
+            [user, service] = relpath.split('/');
+            if (!fs.existsSync(user)) {
+              fs.mkdirSync(user)
+            }
+
             !fs.existsSync(relpath) && fs.mkdirSync(relpath);
+
           } catch (e) {
             console.error(e);
             return callback(new Error(`Could not create directory ${relpath}`));
           }
+
         }
 
         let tmpPath = `/tmp/${source.replace(/\//g, '.')}.tgz`;

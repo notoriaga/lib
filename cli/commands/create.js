@@ -94,9 +94,7 @@ class CreateCommand extends Command {
 
     if (params.flags.hasOwnProperty('s') || params.flags.hasOwnProperty('source')) {
 
-      params.name = 'get';
-      params.args[0] = params.flags['s'][0] || params.flags['source'][0]
-      params.args = params.flags['s'];
+      params.args[0] = params.flags['s'][0] || params.flags['source'][0];
 
       let questions = [{
         name: 'name',
@@ -107,7 +105,7 @@ class CreateCommand extends Command {
 
       inquirer.prompt(questions, (promptResult) => {
 
-        params.flags.name = promptResult.name;
+        params.name = promptResult.name;
 
         sourceGetCommand.prototype.run.call(this, params, () => {
           return callback(null);
