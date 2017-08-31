@@ -167,9 +167,10 @@ class SourceGetCommand extends Command {
           console.log();
 
           if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
-            // with -s we copy over source.json fields and delete it
 
             let sourceJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'source.json'), 'utf8'));
+            let pkgJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'package.json'), 'utf8'));
+
             let envJSON = {
               local: sourceJSON.environmentVariables,
               dev: sourceJSON.environmentVariables,
@@ -182,6 +183,13 @@ class SourceGetCommand extends Command {
             );
 
             fs.unlinkSync(path.join(pathname, 'source.json'));
+
+            pkgJSON.stdlib.source = source;
+
+            fs.writeFileSync(
+              path.join(pathname, 'package.json'),
+              JSON.stringify(pkgJSON, null, 2)
+            );
 
             console.log(`Service created from source code: ${chalk.bold(source)} at:`);
             console.log(`  ${chalk.bold(pathname)}`);
