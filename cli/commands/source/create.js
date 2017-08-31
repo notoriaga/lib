@@ -256,7 +256,7 @@ class SourceCreateCommand extends Command {
             }
             deepAssign(json.pkg, extPkg.pkg);
             deepAssign(json.source, extPkg.source);
-            json.pkg.originSourceCode = extPkgName;
+            json.pkg.stdlib.source = extPkgName;
           }
 
           fileio.writeFiles(

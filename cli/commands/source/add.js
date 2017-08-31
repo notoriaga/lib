@@ -35,7 +35,6 @@ class SourceAdd extends Command {
       return callback(new Error('No stdlib information set in "package.json"'));
     }
 
-    let build = pkg.stdlib.build;
     let source = require(path.join(__dirname,`../../templates/sourceCode/source.json`));
     let sourcePath = path.join(process.cwd(), 'source.json');
 
@@ -61,6 +60,16 @@ class SourceAdd extends Command {
     fs.writeFileSync(
       sourcePath,
       JSON.stringify(source, null, 2)
+    );
+
+
+    let dirs = process.cwd().split(path.sep);
+    let origin =  path.join(dirs[dirs.length - 2], dirs[dirs.length - 1])
+    pkg.stdlib.source = origin;
+
+    fs.writeFileSync(
+      path.join(process.cwd(), 'package.json'),
+      JSON.stringify(pkg, null, 2)
     );
 
     console.log();

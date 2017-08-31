@@ -288,7 +288,7 @@ class CreateCommand extends Command {
                 ));
               }
               deepAssign(json.pkg, extPkg.pkg);
-              json.pkg.originTemplate = extPkgName;
+              json.pkg.stdlib.source = extPkgName;
             }
 
             fileio.writeFiles(
