@@ -184,7 +184,11 @@ class SourceGetCommand extends Command {
 
             fs.unlinkSync(path.join(pathname, 'source.json'));
 
-            pkgJSON.stdlib.source = source;
+            if (source.indexOf('@') !== -1) {
+              pkgJSON.stdlib.source = source;
+            } else {
+              pkgJSON.stdlib.source = `${source}@${pkgJSON.version}`
+            }
 
             fs.writeFileSync(
               path.join(pathname, 'package.json'),
