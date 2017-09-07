@@ -107,8 +107,8 @@ class CreateCommand extends Command {
 
         params.name = promptResult.name;
 
-        sourceGetCommand.prototype.run.call(this, params, () => {
-          return callback(null);
+        sourceGetCommand.prototype.run.call(this, params, (err, result) => {
+          return callback(err, result);
         });
 
       });

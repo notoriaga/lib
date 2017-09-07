@@ -58,14 +58,18 @@ class SourceGetCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    getUserName(params.flags.hasOwnProperty('s'), port).then(results => {
+    getUserName(port, (err, username) => {
+
+      if (err) {
+        return callback(err);
+      }
 
       let pathname;
 
       if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
-        pathname = `${results}/${name}`
+        pathname = `${username}/${name}`;
       } else {
-        pathname = source
+        pathname = source;
       }
 
       if (!source) {
@@ -116,8 +120,6 @@ class SourceGetCommand extends Command {
       return resource.request(endpoint).index({}, (err, response) => {
 
         if (err) {
-          console.log(err);
-          console.log(new Error(`Error making request to ${endpoint}`));
           return callback(err);
         }
 
@@ -139,7 +141,6 @@ class SourceGetCommand extends Command {
             !fs.existsSync(relpath) && fs.mkdirSync(relpath);
 
           } catch (e) {
-            console.error(e);
             return callback(new Error(`Could not create directory ${relpath}`));
           }
 
@@ -150,7 +151,6 @@ class SourceGetCommand extends Command {
         try {
           fs.writeFileSync(tmpPath, response);
         } catch (e) {
-          console.error(e);
           return callback(new Error(`Could not write temporary file ${tmpPath}`));
         }
 
@@ -213,32 +213,25 @@ class SourceGetCommand extends Command {
 
       });
 
-    }).catch(err => {
-      console.log(err);
     });
 
   }
 
 }
 
-function getUserName(staging, port) {
+function getUserName(port, callback) {
 
-  return new Promise(function(resolve, reject) {
+  let host = 'api.jacobb.us';
+  let resource = new APIResource(host, port);
+  resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-  //  let host = staging ? 'api.jacobb.us' : 'api.polybit.com'
-    let host = 'api.jacobb.us';
-    let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+  resource.request('v1/users').index({me: true}, (err, response) => {
 
-    resource.request('v1/users').index({me: true}, (err, response) => {
+    if (err) {
+      return callback(err);
+    }
 
-      if (err) {
-        return reject(err);
-      }
-
-      return resolve(response.data[0].username);
-
-    });
+    return callback(null, response.data[0].username);
 
   });
 
