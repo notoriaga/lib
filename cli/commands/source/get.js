@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process');
-
+const inquirer = require('inquirer');
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const Credentials = require('../../credentials.js');
@@ -172,10 +172,32 @@ class SourceGetCommand extends Command {
             let pkgJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'package.json'), 'utf8'));
 
             let envJSON = {
-              local: sourceJSON.environmentVariables,
-              dev: sourceJSON.environmentVariables,
-              release: sourceJSON.environmentVariables
+              local: {},
+              dev: {},
+              release: {},
             }
+
+            let varPrompts = [];
+            let environments = Object.keys(sourceJSON.environmentVariables);
+
+            environments.forEach((env) => {
+
+              let prompts = Object.keys(sourceJSON.environmentVariables[env]).map((enVar) => {
+                return {
+                  name: `${env}.${enVar}`,
+                  default: '',
+                  message: `${env}: ${enVar}`,
+                  env: env,
+                };
+              });
+
+              varPrompts = varPrompts.concat(prompts);
+
+            });
+
+            inquirer.prompt(varPrompts, (promptResult) => {
+              envJSON[promptResult.env] = promptResult.name;
+            });
 
             fs.writeFileSync(
               path.join(pathname, 'env.json'),

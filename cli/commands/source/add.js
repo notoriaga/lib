@@ -52,7 +52,7 @@ class SourceAdd extends Command {
       for (var env in envJSON) {
         source.environmentVariables[env] = {};
         for (var field in envJSON[env]) {
-          source.environmentVariables[env][field] = 'description';
+          source.environmentVariables[env][field] = '';
         }
       }
     }
