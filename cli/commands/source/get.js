@@ -212,6 +212,10 @@ class SourceGetCommand extends Command {
               pkgJSON.stdlib.source = `${source}@${pkgJSON.version}`
             }
 
+            pkgJSON.version = '0.0.0';
+            pkgJSON.name = name;
+            pkgJSON.stdlib.name = `${username}/${name}`;
+
             fs.writeFileSync(
               path.join(pathname, 'package.json'),
               JSON.stringify(pkgJSON, null, 2)
