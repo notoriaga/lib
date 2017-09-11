@@ -185,9 +185,8 @@ class SourceGetCommand extends Command {
               let prompts = Object.keys(sourceJSON.environmentVariables[env]).map((enVar) => {
                 return {
                   name: `${env}.${enVar}`,
-                  default: '',
-                  message: `${env}: ${enVar}`,
-                  env: env,
+                  message: `${env}.${enVar}`,
+                  type: 'input',
                 };
               });
 
@@ -195,35 +194,44 @@ class SourceGetCommand extends Command {
 
             });
 
-            inquirer.prompt(varPrompts, (promptResult) => {
-              envJSON[promptResult.env] = promptResult.name;
+            inquirer.prompt(varPrompts, function (promptResult) {
+
+              for (let res in promptResult){
+                let env, key;
+                [env, key] = res.split('.');
+                envJSON[env][key] = promptResult[res];
+              }
+
+              fs.writeFileSync(
+                path.join(pathname, 'env.json'),
+                JSON.stringify(envJSON, null, 2)
+              );
+
+              fs.unlinkSync(path.join(pathname, 'source.json'));
+
+              if (source.indexOf('@') !== -1) {
+                pkgJSON.stdlib.source = source;
+              } else {
+                pkgJSON.stdlib.source = `${source}@${pkgJSON.version}`
+              }
+
+              pkgJSON.version = '0.0.0';
+              pkgJSON.name = name;
+              pkgJSON.stdlib.name = `${username}/${name}`;
+
+              fs.writeFileSync(
+                path.join(pathname, 'package.json'),
+                JSON.stringify(pkgJSON, null, 2)
+              );
+
+              console.log();
+              console.log(`Service created from source code: ${chalk.bold(source)} at:`);
+              console.log(`  ${chalk.bold(pathname)}`);
+              console.log();
+
+              return callback(null)
+
             });
-
-            fs.writeFileSync(
-              path.join(pathname, 'env.json'),
-              JSON.stringify(envJSON, null, 2)
-            );
-
-            fs.unlinkSync(path.join(pathname, 'source.json'));
-
-            if (source.indexOf('@') !== -1) {
-              pkgJSON.stdlib.source = source;
-            } else {
-              pkgJSON.stdlib.source = `${source}@${pkgJSON.version}`
-            }
-
-            pkgJSON.version = '0.0.0';
-            pkgJSON.name = name;
-            pkgJSON.stdlib.name = `${username}/${name}`;
-
-            fs.writeFileSync(
-              path.join(pathname, 'package.json'),
-              JSON.stringify(pkgJSON, null, 2)
-            );
-
-            console.log(`Service created from source code: ${chalk.bold(source)} at:`);
-            console.log(`  ${chalk.bold(pathname)}`);
-            console.log();
 
           } else {
 
@@ -231,9 +239,9 @@ class SourceGetCommand extends Command {
             console.log(`  ${chalk.bold(pathname)}`);
             console.log();
 
-          }
+            return callback(null);
 
-          return callback(null);
+          }
 
         });
 
