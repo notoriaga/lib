@@ -44,7 +44,6 @@ class ReleaseCommand extends Command {
 
         UpCommand.prototype.run.call(this, params, callback);
 
-
       });
 
     } else {
