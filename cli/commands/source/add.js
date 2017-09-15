@@ -49,12 +49,23 @@ class SourceAdd extends Command {
       source.environmentVariables = {};
       let envJSON = require(envPath);
 
-      for (var env in envJSON) {
-        source.environmentVariables[env] = {};
-        for (var field in envJSON[env]) {
-          source.environmentVariables[env][field] = {default: '', description: ''};
+
+      source.environmentVariables = {};
+
+      if (envJSON.release) {
+        for (var field in envJSON.release) {
+          source.environmentVariables[field] = {default: '', description: ''};
+        }
+      } else if (envJSON.dev) {
+        for (var field in envJSON.dev) {
+          source.environmentVariables[field] = {default: '', description: ''};
+        }
+      } else if (envJSON.local) {
+        for (var field in envJSON.local) {
+          source.environmentVariables[field] = {default: '', description: ''};
         }
       }
+
     }
 
     fs.writeFileSync(
