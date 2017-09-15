@@ -170,7 +170,6 @@ class SourceGetCommand extends Command {
 
             let sourceJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'source.json'), 'utf8'));
             let pkgJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'package.json'), 'utf8'));
-
             let envJSON = {
               local: {},
               dev: {},
@@ -178,15 +177,14 @@ class SourceGetCommand extends Command {
             }
 
             let varPrompts = [];
-            let environments = Object.keys(sourceJSON.environmentVariables);
+            Object.keys(envJSON).forEach((env) => {
 
-            environments.forEach((env) => {
-
-              let prompts = Object.keys(sourceJSON.environmentVariables[env]).map((enVar) => {
+              let prompts = Object.keys(sourceJSON.environmentVariables).map((enVar) => {
                 return {
                   name: `${env}.${enVar}`,
-                  message: `${env}.${enVar}`,
+                  message: `${env}.${enVar}: ${sourceJSON.environmentVariables[enVar]['description']}`,
                   type: 'input',
+                  default: sourceJSON.environmentVariables[enVar]['default'],
                 };
               });
 
