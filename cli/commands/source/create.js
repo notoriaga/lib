@@ -3,6 +3,7 @@
 
 'use strict';
 
+const lib = require('lib');
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const Credentials = require('../../credentials.js');
@@ -10,12 +11,10 @@ const fileio = require('../../fileio.js');
 
 const async = require('async');
 const inquirer = require('inquirer');
+const chalk = require('chalk');
 
 const fs = require('fs');
 const path = require('path');
-const chalk = require('chalk');
-
-const lib = require('lib');
 
 const spawnSync = require('child_process').spawnSync;
 
@@ -46,7 +45,7 @@ class SourceCreateCommand extends Command {
   help() {
 
     return {
-      description: 'Creates new (local) source code',
+      description: 'Creates a new (local) source code',
       args: [
         'source'
       ],
@@ -68,7 +67,6 @@ class SourceCreateCommand extends Command {
 
   }
 
-
   run(params, callback) {
 
     let name = params.args[0];
@@ -77,11 +75,9 @@ class SourceCreateCommand extends Command {
     let port = params.flags.p && params.flags.p[0];
 
     let nologin = params.flags.hasOwnProperty('n') || params.vflags.hasOwnProperty('no-login');
-
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
-    let tdev = params.flags.hasOwnProperty('tdev');
-
+    
     let develop = (params.flags.d || params.vflags.develop || [])[0];
     let build = (params.flags.b || params.vflags.build || [])[0] || DEFAULT_BUILD;
 

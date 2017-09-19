@@ -55,7 +55,7 @@ class CreateCommand extends Command {
         t: 'Template - a StdLib service template to use',
         d: 'Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)',
         b: `Build - Specify build, ${DEFAULT_BUILD} (default) or ${OTHER_BUILDS.map(v => `"${v}"`).join(', ')}`,
-        s: 'Source Code - create service from a StdLib source code'
+        s: 'Source Code - creates service from a StdLib source code'
       },
       vflags: {
         'no-login': 'No login - don\'t require an internet connection',
@@ -63,7 +63,7 @@ class CreateCommand extends Command {
         'template': 'Template - a stdlib service template to use',
         'develop': 'Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)',
         'build': `Build - Specify build, ${DEFAULT_BUILD} (default) or ${OTHER_BUILDS.map(v => `"${v}"`).join(', ')}`,
-        'source': 'Source Code - create service from a StdLib source code'
+        'source': 'Source Code - creates service from a StdLib source code'
       }
     };
 
@@ -93,27 +93,37 @@ class CreateCommand extends Command {
     let extPkg = null;
 
     if (params.flags.hasOwnProperty('s') || params.flags.hasOwnProperty('source')) {
+      // create a service from a source code 
 
-      params.args[0] = params.flags['s'][0] || params.flags['source'][0];
+      let source = (params.flags['s'] || params.flags['source'])[0];
+    
+      if (!source) {
+        return callback(new Error('Please specify a source code to use'));
+      }
 
-      let questions = [{
+      let questions = [];
+      name || questions.push({
         name: 'name',
         type: 'input',
         default: '',
         message: 'Service Name'
-      }];
+      });
 
-      inquirer.prompt(questions, (promptResult) => {
+      inquirer.prompt(questions, (answers) => {
+        
+        name = name || answers.name;
+        sourceGetCommand.prototype.run.call(this, {flags: {},
+                                                   vflags: {service: name},
+                                                   args: [source]}, 
+                                                   (err, result) => {
 
-        params.name = promptResult.name;
-
-        sourceGetCommand.prototype.run.call(this, params, (err, result) => {
           return callback(err, result);
-        });
 
+        });
       });
 
     } else {
+      // create a normal service
 
       if (!force && !Credentials.location(1)) {
         console.log();

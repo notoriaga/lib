@@ -10,6 +10,24 @@ const Credentials = require('../../credentials.js');
 
 const chalk = require('chalk');
 
+function getUserName(port, callback) {
+  
+    let host = 'api.jacobb.us';
+    let resource = new APIResource(host, port);
+    
+    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.request('v1/users').index({me: true}, (err, response) => {
+  
+      if (err) {
+        return callback(err);
+      }
+  
+      return callback(null, response.data[0].username);
+  
+    });
+  
+  }
+
 class SourceGetCommand extends Command {
 
   constructor() {
@@ -40,18 +58,33 @@ class SourceGetCommand extends Command {
   }
 
   run(params, callback) {
+    
+    let sourceName = params.args[0] || '';
 
-    let source = params.args[0] || '';
-    let name = params.name;
+    if (!sourceName) {
+      return callback(new Error('Please specify a source code name'));
+    }
+    
+    let serviceName;
 
+    if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
+      
+      serviceName = (params.flags.s || params.vflags.service)[0] || '';
+      
+      if (!serviceName) {
+        return callback(new Error('Please specify a name for your service')); 
+      }
+    
+    }
+    
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
 
-    let host = 'registry.stdlib.com';
-    let port = 443;
-
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
+
+    let host = 'registry.stdlib.com';
+    let port = 443;
 
     if (hostname && matches) {
       host = matches[2];
@@ -64,22 +97,7 @@ class SourceGetCommand extends Command {
         return callback(err);
       }
 
-      let pathname;
-
-      if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
-        pathname = `${username}/${name}`;
-      } else {
-        pathname = source;
-      }
-
-      if (!source) {
-        console.log();
-        console.log(chalk.bold.red('Oops!'));
-        console.log();
-        console.log(`Please specify source code name`);
-        console.log();
-        return callback(null);
-      }
+      let pathname = serviceName ? `${username}/${serviceName}` : sourceName;
 
       if (!force && !Credentials.location(1)) {
         console.log();
@@ -89,7 +107,7 @@ class SourceGetCommand extends Command {
         console.log(`But you're not in a root stdlib project directory.`);
         console.log(`We recommend against this.`);
         console.log();
-        console.log(`Use ${chalk.bold('lib get ' + source + ' --force')} to override.`);
+        console.log(`Use ${chalk.bold('lib get ' + sourceName + ' --force')} to override.`);
         console.log();
         return callback(null);
       }
@@ -103,7 +121,7 @@ class SourceGetCommand extends Command {
         console.log();
         console.log(`Try removing the existing directory first.`);
         console.log();
-        console.log(`Use ${chalk.bold('lib get ' + source + ' --write-over')} to override.`);
+        console.log(`Use ${chalk.bold('lib get ' + sourceName + ' --write-over')} to override.`);
         console.log();
         return callback(null);
       }
@@ -111,7 +129,7 @@ class SourceGetCommand extends Command {
       let resource = new APIResource(host, port);
       resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-      let endpoint = `sources/${source}/package.tgz`;
+      let endpoint = `sources/${sourceName}/package.tgz`;
 
       console.log();
       console.log(`Retrieving ${chalk.bold(host + '/' + endpoint)}...`);
@@ -146,7 +164,7 @@ class SourceGetCommand extends Command {
 
         }
 
-        let tmpPath = `/tmp/${source.replace(/\//g, '.')}.tgz`;
+        let tmpPath = `/tmp/${sourceName.replace(/\//g, '.')}.tgz`;
 
         try {
           fs.writeFileSync(tmpPath, response);
@@ -166,7 +184,8 @@ class SourceGetCommand extends Command {
           console.log(chalk.bold.green('Success!'));
           console.log();
 
-          if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
+          if (serviceName) {
+            // create a service from the source code 
 
             let sourceJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'source.json'), 'utf8'));
             let pkgJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'package.json'), 'utf8'));
@@ -176,28 +195,28 @@ class SourceGetCommand extends Command {
               release: {},
             }
 
-            let varPrompts = [];
+            let envVarPrompts = [];
             Object.keys(envJSON).forEach((env) => {
 
-              let prompts = Object.keys(sourceJSON.environmentVariables).map((enVar) => {
+              let prompts = Object.keys(sourceJSON.environmentVariables).map((variable) => {
                 return {
-                  name: `${env}.${enVar}`,
-                  message: `${env}.${enVar}: ${sourceJSON.environmentVariables[enVar]['description']}`,
+                  name: `${env}.${variable}`,
+                  message: `${env}.${variable}: ${sourceJSON.environmentVariables[variable].description}`,
                   type: 'input',
-                  default: sourceJSON.environmentVariables[enVar]['default'],
+                  default: sourceJSON.environmentVariables[variable].default,
                 };
               });
 
-              varPrompts = varPrompts.concat(prompts);
+              envVarPrompts = envVarPrompts.concat(prompts);
 
             });
 
-            inquirer.prompt(varPrompts, function (promptResult) {
+            inquirer.prompt(envVarPrompts, function (answers) {
 
-              for (let res in promptResult){
-                let env, key;
-                [env, key] = res.split('.');
-                envJSON[env][key] = promptResult[res];
+              for (let answer in answers){
+                let env, variable;
+                [env, variable] = answer.split('.');
+                envJSON[env][variable] = answers[answer];
               }
 
               fs.writeFileSync(
@@ -207,15 +226,15 @@ class SourceGetCommand extends Command {
 
               fs.unlinkSync(path.join(pathname, 'source.json'));
 
-              if (source.indexOf('@') !== -1) {
-                pkgJSON.stdlib.source = source;
+              if (sourceName.indexOf('@') !== -1) {
+                pkgJSON.stdlib.source = sourceName;
               } else {
-                pkgJSON.stdlib.source = `${source}@${pkgJSON.version}`
+                pkgJSON.stdlib.source = `${sourceName}@${pkgJSON.version}`
               }
 
               pkgJSON.version = '0.0.0';
-              pkgJSON.name = name;
-              pkgJSON.stdlib.name = `${username}/${name}`;
+              pkgJSON.name = serviceName;
+              pkgJSON.stdlib.name = `${username}/${serviceName}`;
 
               fs.writeFileSync(
                 path.join(pathname, 'package.json'),
@@ -223,7 +242,7 @@ class SourceGetCommand extends Command {
               );
 
               console.log();
-              console.log(`Service created from source code: ${chalk.bold(source)} at:`);
+              console.log(`Service created from source code: ${chalk.bold(sourceName)} at:`);
               console.log(`  ${chalk.bold(pathname)}`);
               console.log();
 
@@ -232,8 +251,9 @@ class SourceGetCommand extends Command {
             });
 
           } else {
+            // just leave the extracted source code as is
 
-            console.log(`Source code ${chalk.bold(source)} retrieved to:`);
+            console.log(`Source code ${chalk.bold(sourceName)} retrieved to:`);
             console.log(`  ${chalk.bold(pathname)}`);
             console.log();
 
@@ -248,24 +268,6 @@ class SourceGetCommand extends Command {
     });
 
   }
-
-}
-
-function getUserName(port, callback) {
-
-  let host = 'api.jacobb.us';
-  let resource = new APIResource(host, port);
-  resource.authorize(Credentials.read('ACCESS_TOKEN'));
-
-  resource.request('v1/users').index({me: true}, (err, response) => {
-
-    if (err) {
-      return callback(err);
-    }
-
-    return callback(null, response.data[0].username);
-
-  });
 
 }
 
