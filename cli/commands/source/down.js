@@ -18,15 +18,15 @@ class SourceDownCommand extends Command {
   help() {
 
     return {
-      description: 'Removes StdLib source code from registry and cloud environment',
+      description: 'Removes StdLib source code from the registry and cloud environments',
       args: [
         'environment'
       ],
       flags: {
-        r: 'Remove a release version (provide number)',
+        r: 'Removes a release version (provide number)',
       },
       vflags: {
-        release: 'Remove a release version (provide number)',
+        release: 'Removes a release version (provide number)',
       }
     };
 
@@ -35,27 +35,27 @@ class SourceDownCommand extends Command {
   run(params, callback) {
 
     let environment = params.args[0];
-    let version;
     let release = params.flags.r || params.vflags.release;
+    let version;
+    
+    if (release) {
+      version = release[0];
+      environment = null;
+    }
 
     if (release && environment) {
-      return callback(new Error('Can not remove an release with an environment'));
+      return callback(new Error('Can not remove a release with an environment'));
     }
 
     if (!release && !environment) {
       return callback(new Error('Please specify an environment'));
     }
 
-    if (release) {
-      version = release[0];
-      environment = null;
-    }
+    let hostname = (params.flags.h && params.flags.h[0]) || '';
+    let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
 
     let host = 'registry.stdlib.com';
     let port = 443;
-
-    let hostname = (params.flags.h && params.flags.h[0]) || '';
-    let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
 
     if (hostname && matches) {
       host = matches[2];
@@ -104,6 +104,7 @@ class SourceDownCommand extends Command {
         }
 
       }
+      
     );
 
   }
