@@ -97,8 +97,6 @@ class SourceGetCommand extends Command {
         return callback(err);
       }
 
-      let pathname = serviceName ? `${username}/${serviceName}` : sourceName;
-
       if (!force && !Credentials.location(1)) {
         console.log();
         console.log(chalk.bold.red('Oops!'));
@@ -111,6 +109,8 @@ class SourceGetCommand extends Command {
         console.log();
         return callback(null);
       }
+
+      let pathname = serviceName ? `${username}/${serviceName}` : sourceName;
 
       if (!write && fs.existsSync(pathname)) {
         console.log();

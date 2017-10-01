@@ -47,7 +47,7 @@ class SourceCreateCommand extends Command {
     return {
       description: 'Creates a new (local) source code',
       args: [
-        'source'
+        'source name'
       ],
       flags: {
         n: 'No login - don\'t require an internet connection',
@@ -77,7 +77,7 @@ class SourceCreateCommand extends Command {
     let nologin = params.flags.hasOwnProperty('n') || params.vflags.hasOwnProperty('no-login');
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
-    
+
     let develop = (params.flags.d || params.vflags.develop || [])[0];
     let build = (params.flags.b || params.vflags.build || [])[0] || DEFAULT_BUILD;
 

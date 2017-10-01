@@ -45,40 +45,23 @@ class SourceAdd extends Command {
     let envJSON;
 
     try {
-      envJSON = require(path.join(process.cdw(), 'env.json'));
+      envJSON = require(path.join(process.cwd(), 'env.json'));
     } catch(e) {
+      console.log(e)
       return callback(new Error('Invalid env.json'));
     }
     
     sourceTemplate.environmentVariables = {};
 
-    // prioritize release, then dev, then local  
-    if (envJSON.release) {
-      for (var field in envJSON.release) {
-        sourceTemplate.environmentVariables[field] = {default: '', description: ''};
-      }
-    } else if (envJSON.dev) {
-      for (var field in envJSON.dev) {
-        sourceTemplate.environmentVariables[field] = {default: '', description: ''};
-      }
-    } else if (envJSON.local) {
-      for (var field in envJSON.local) {
-        sourceTemplate.environmentVariables[field] = {default: '', description: ''};
-      }
-    }
+    // prioritize release, then dev, then local    
+    let envVars = envJSON.release || envJSON.dev || envJSON.local;
+    Object.keys(envVars).map((field) => {
+        sourceTemplate.environmentVariables[field] = { default: '', description: '' }
+    });
 
     fs.writeFileSync(
       sourcePath,
       JSON.stringify(sourceTemplate, null, 2)
-    );
-
-    let dirs = process.cwd().split(path.sep);
-    let origin =  path.join(dirs[dirs.length - 2], dirs[dirs.length - 1])
-    pkgJSON.stdlib.source = origin;
-
-    fs.writeFileSync(
-      path.join(process.cwd(), 'package.json'),
-      JSON.stringify(pkgJSON, null, 2)
     );
 
     console.log();
