@@ -120,6 +120,7 @@ class CreateCommand extends Command {
           return callback(err, result);
 
         });
+
       });
 
     } else {

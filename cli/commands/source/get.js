@@ -12,7 +12,7 @@ const chalk = require('chalk');
 
 function getUserName(port, callback) {
   
-    let host = 'api.jacobb.us';
+    let host = 'api.jacobb.us'; 
     let resource = new APIResource(host, port);
     
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
@@ -26,7 +26,7 @@ function getUserName(port, callback) {
   
     });
   
-  }
+}
 
 class SourceGetCommand extends Command {
 
@@ -226,11 +226,9 @@ class SourceGetCommand extends Command {
 
               fs.unlinkSync(path.join(pathname, 'source.json'));
 
-              if (sourceName.indexOf('@') !== -1) {
-                pkgJSON.stdlib.source = sourceName;
-              } else {
-                pkgJSON.stdlib.source = `${sourceName}@${pkgJSON.version}`
-              }
+              pkgJSON.stdlib.source = sourceName.indexOf('@') !== -1 
+                ? pkgJSON.stdlib.source = sourceName
+                : `${sourceName}@${pkgJSON.version}`;
 
               pkgJSON.version = '0.0.0';
               pkgJSON.name = serviceName;
