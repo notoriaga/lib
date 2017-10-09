@@ -11,21 +11,21 @@ const Credentials = require('../../credentials.js');
 const chalk = require('chalk');
 
 function getUserName(port, callback) {
-  
-    let host = 'api.jacobb.us'; 
+
+    let host = 'api.polybit.com';
     let resource = new APIResource(host, port);
-    
+
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
     resource.request('v1/users').index({me: true}, (err, response) => {
-  
+
       if (err) {
         return callback(err);
       }
-  
+
       return callback(null, response.data[0].username);
-  
+
     });
-  
+
 }
 
 class SourceGetCommand extends Command {
@@ -58,25 +58,25 @@ class SourceGetCommand extends Command {
   }
 
   run(params, callback) {
-    
+
     let sourceName = params.args[0] || '';
 
     if (!sourceName) {
       return callback(new Error('Please specify a source code name'));
     }
-    
+
     let serviceName;
 
     if (params.flags.hasOwnProperty('s') || params.vflags.hasOwnProperty('service')) {
-      
+
       serviceName = (params.flags.s || params.vflags.service)[0] || '';
-      
+
       if (!serviceName) {
-        return callback(new Error('Please specify a name for your service')); 
+        return callback(new Error('Please specify a name for your service'));
       }
-    
+
     }
-    
+
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
 
@@ -185,7 +185,7 @@ class SourceGetCommand extends Command {
           console.log();
 
           if (serviceName) {
-            // create a service from the source code 
+            // create a service from the source code
 
             let sourceJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'source.json'), 'utf8'));
             let pkgJSON = JSON.parse(fs.readFileSync(path.join(pathname, 'package.json'), 'utf8'));
@@ -226,7 +226,7 @@ class SourceGetCommand extends Command {
 
               fs.unlinkSync(path.join(pathname, 'source.json'));
 
-              pkgJSON.stdlib.source = sourceName.indexOf('@') !== -1 
+              pkgJSON.stdlib.source = sourceName.indexOf('@') !== -1
                 ? pkgJSON.stdlib.source = sourceName
                 : `${sourceName}@${pkgJSON.version}`;
 
