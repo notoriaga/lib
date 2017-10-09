@@ -226,7 +226,7 @@ class SourceGetCommand extends Command {
 
               fs.unlinkSync(path.join(pathname, 'source.json'));
 
-              pkgJSON.stdlib.source = sourceName.indexOf('@') !== -1 
+              pkgJSON.stdlib.source = sourceName.indexOf('@') === -1 
                 ? pkgJSON.stdlib.source = sourceName
                 : `${sourceName}@${pkgJSON.version}`;
 
