@@ -16,7 +16,7 @@ class SourceAdd extends Command {
   help() {
 
     return {
-      description: 'Converts a StdLib service into source code'
+      description: 'Converts a StdLib service into a source code'
     };
 
   }
@@ -31,29 +31,24 @@ class SourceAdd extends Command {
       return callback(new Error('Invalid package.json'));
     }
 
-    if (!pkgJSON.stdlib) {
-      return callback(new Error('No stdlib information set in "package.json"'));
-    }
-
     let sourceTemplate = require(path.join(__dirname,`../../templates/sourceCode/source.json`));
     let sourcePath = path.join(process.cwd(), 'source.json');
 
     if (fs.existsSync(sourcePath)) {
       return callback(new Error('source.json already exists'));
     }
-    
+
     let envJSON;
 
     try {
       envJSON = require(path.join(process.cwd(), 'env.json'));
     } catch(e) {
-      console.log(e)
       return callback(new Error('Invalid env.json'));
     }
-    
+
     sourceTemplate.environmentVariables = {};
 
-    // prioritize release, then dev, then local    
+    // prioritize release, then dev, then local
     let envVars = envJSON.release || envJSON.dev || envJSON.local;
     Object.keys(envVars).map((field) => {
         sourceTemplate.environmentVariables[field] = { default: '', description: '' }

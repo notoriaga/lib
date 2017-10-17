@@ -37,7 +37,7 @@ class SourceDownCommand extends Command {
     let environment = params.args[0];
     let release = params.flags.r || params.vflags.release;
     let version;
-    
+
     if (release) {
       version = release[0];
       environment = null;
@@ -104,7 +104,7 @@ class SourceDownCommand extends Command {
         }
 
       }
-      
+
     );
 
   }

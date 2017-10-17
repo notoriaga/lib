@@ -1,6 +1,3 @@
-// NOTE: This follows the same codepath as commands/create.js so any changes there
-// will most likely need to be done here as well
-
 'use strict';
 
 const lib = require('lib');
