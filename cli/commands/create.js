@@ -93,10 +93,10 @@ class CreateCommand extends Command {
     let extPkg = null;
 
     if (params.flags.hasOwnProperty('s') || params.flags.hasOwnProperty('source')) {
-      // create a service from a source code 
+      // create a service from a source code
 
       let source = (params.flags['s'] || params.flags['source'])[0];
-    
+
       if (!source) {
         return callback(new Error('Please specify a source code to use'));
       }
@@ -110,11 +110,12 @@ class CreateCommand extends Command {
       });
 
       inquirer.prompt(questions, (answers) => {
-        
+
         name = name || answers.name;
         sourceGetCommand.prototype.run.call(this, {flags: {},
-                                                   vflags: {service: name},
-                                                   args: [source]}, 
+                                                   vflags: { service: name,
+                                                             'write-over': params.vflags['write-over'] },
+                                                   args: [source]},
                                                    (err, result) => {
 
           return callback(err, result);

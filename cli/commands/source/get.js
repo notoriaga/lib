@@ -201,7 +201,7 @@ class SourceGetCommand extends Command {
               let prompts = Object.keys(sourceJSON.environmentVariables).map((variable) => {
                 return {
                   name: `${env}.${variable}`,
-                  message: `${env}.${variable}: ${sourceJSON.environmentVariables[variable].description}`,
+                  message: `${env} - ${variable}: ${sourceJSON.environmentVariables[variable].description}`,
                   type: 'input',
                   default: sourceJSON.environmentVariables[variable].default,
                 };
@@ -211,6 +211,7 @@ class SourceGetCommand extends Command {
 
             });
 
+            console.log('Enter Environment Variables [environment] - [variable]');
             inquirer.prompt(envVarPrompts, function (answers) {
 
               for (let answer in answers){
@@ -226,8 +227,8 @@ class SourceGetCommand extends Command {
 
               fs.unlinkSync(path.join(pathname, 'source.json'));
 
-              pkgJSON.stdlib.source = sourceName.indexOf('@') === -1
-                ? pkgJSON.stdlib.source = sourceName
+              pkgJSON.stdlib.source = sourceName.indexOf('@') !== -1
+                ? sourceName
                 : `${sourceName}@${pkgJSON.version}`;
 
               pkgJSON.version = '0.0.0';
