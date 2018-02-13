@@ -13,23 +13,25 @@ class GetCommand extends Command {
 
   constructor() {
 
-    super('write');
+    super('read');
 
   }
 
   help() {
 
     return {
-      description: 'Writes a file to StdIO',
+      description: 'Reads a file from StdIO and saves it locally',
       args: [
-        'File destination',
-        'File path'
+        'StdIO file path',
+        'Local destination'
       ],
       flags: {
-        t: 'Library Token (default is currently active)'
+        t: 'Library Token (default is currently active)',
+        w: 'Write over old file'
       },
       vflags: {
-        token: 'Library Token (default is currently active)'
+        'token': 'Library Token (default is currently active)',
+        'write-over': 'Write over old file'
       }
     };
 
@@ -60,52 +62,55 @@ class GetCommand extends Command {
       return callback(null)
     }
 
-    let fileDest = params.args[0] || ''
-    if (!fileDest) {
+    let stdioPath = params.args[0] || ''
+    if (!stdioPath) {
       console.log()
       console.log(chalk.bold.red('Oops!'))
       console.log()
-      console.log(`Please specify a file destination`)
+      console.log(`Please specify a StdIO file`)
       console.log()
       return callback(null)
     }
 
-    let filePath = params.args[1] || ''
-    if (!filePath) {
+    let destination = params.args[1] || ''
+    if (!destination) {
       console.log()
       console.log(chalk.bold.red('Oops!'))
       console.log()
-      console.log(`Please specify a file name`)
+      console.log(`Please specify a destination`)
       console.log()
       return callback(null)
     }
 
-    if (!fs.existsSync(filePath)) {
+    let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
+    if (fs.existsSync(destination) && !write) {
       console.log()
       console.log(chalk.bold.red('Oops!'))
       console.log()
-      console.log(`The file you're trying to write does not exist:`)
-      console.log(`  ${chalk.bold(filePath)}`)
+      console.log('The file you are trying to write to already exists.')
+      console.log('Use -w to force writing to this location')
       console.log()
       return callback(null)
     }
 
-    let fileData = fs.readFileSync(filePath)
+    let writeStream = fs.createWriteStream(destination)
 
     let resource = new APIResource(host, port)
     resource.authorize(token)
 
     return resource
-      .request('/files?path=' + encodeURIComponent(fileDest))
+      .request('/files?path=' + encodeURIComponent(stdioPath))
       .stream(
-        'POST',
-        fileData,
-        (data) => {},
+        'GET',
+        null,
+        (data) => {
+          writeStream.write(data)
+        },
         (err, result) => {
           if (err) {
             return callback(err)
           }
-          return callback(null, result.toString())
+          return callback(null, `File written to ${destination}`)
         }
       )
 
