@@ -13,25 +13,22 @@ class GetCommand extends Command {
 
   constructor() {
 
-    super('read');
+    super('delete');
 
   }
 
   help() {
 
     return {
-      description: 'Reads a file from StdIO and saves it locally',
+      description: 'Deletes a file from StdIO',
       args: [
-        'StdIO file path',
-        'Local destination'
+        'StdIO file path'
       ],
       flags: {
         t: 'Library Token (default is currently active)',
-        w: 'Write over old file'
       },
       vflags: {
         'token': 'Library Token (default is currently active)',
-        'write-over': 'Write over old file'
       }
     };
 
@@ -72,55 +69,21 @@ class GetCommand extends Command {
       return callback(null)
     }
 
-    let destination = params.args[1] || ''
-    if (!destination) {
-      console.log()
-      console.log(chalk.bold.red('Oops!'))
-      console.log()
-      console.log(`Please specify a destination`)
-      console.log()
-      return callback(null)
-    }
-
-    let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
-    if (fs.existsSync(destination) && !write) {
-      console.log()
-      console.log(chalk.bold.red('Oops!'))
-      console.log()
-      console.log('The file you are trying to write to already exists.')
-      console.log('Use -w to force writing to this location')
-      console.log()
-      return callback(null)
-    }
-
-    let writeStream = fs.createWriteStream(destination)
-
     let resource = new APIResource(host, port)
     resource.authorize(token)
 
     return resource
-      .request('/files?path=' + encodeURIComponent(stdioPath))
-      .stream(
-        'GET',
+      .request('files')
+      .del(
         null,
-        (data) => {
-          writeStream.write(data)
+        {
+          path: stdioPath
         },
         (err, result) => {
           if (err) {
             return callback(err)
           }
-    
-          try {
-            let response = JSON.parse(result)
-            if (response.meta.error) {
-              return callback(null, response.meta.error.message)
-            }
-          } catch (error) {
-            // Do nothing
-          }
-
-          return callback(null, `File written to [${destination}]`)
+          return callback(null, result.toString())
         }
       )
 
